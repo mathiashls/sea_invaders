@@ -44,16 +44,19 @@ def setup_screen():
 
 def generate_enemy():
     """ Place enemy in a new location and choose a new random skin for it """
-    enemy_skin = random.choice(
-        [ENEMY_01_IMAGE, ENEMY_02_IMAGE, ENEMY_03_IMAGE, ENEMY_04_IMAGE]
-    )
 
     global ENEMY
     global ENEMY_POSITION_X
     global ENEMY_POSITION_Y
-    ENEMY = pygame.image.load(enemy_skin)
-    ENEMY_POSITION_X = random.randint(SCREEN_LEFT_BOUNDARY, SCREEN_RIGHT_BOUNDARY)
-    ENEMY_POSITION_Y = random.randint(SCREEN_TOP_BOUNDARY, SCREEN_ENEMY_BOTTOM_BOUNDARY)
+    for i in range(ENEMY_NUMBER):
+        enemy_skin = random.choice(
+            [ENEMY_01_IMAGE, ENEMY_02_IMAGE, ENEMY_03_IMAGE, ENEMY_04_IMAGE]
+        )
+        ENEMY.append(pygame.image.load(enemy_skin))
+        ENEMY_POSITION_X.append(random.randint(SCREEN_LEFT_BOUNDARY, SCREEN_RIGHT_BOUNDARY))
+        ENEMY_POSITION_Y.append(random.randint(SCREEN_TOP_BOUNDARY, SCREEN_ENEMY_BOTTOM_BOUNDARY))
+        ENEMY_POSITION_X_PACE.append(2)
+        ENEMY_POSITION_Y_PACE.append(40)
 
 
 def update_player(x, y):
@@ -75,9 +78,9 @@ def fix_player_bounds():
         PLAYER_POSITION_Y = SCREEN_BOTTOM_BOUNDARY
 
 
-def update_enemy(x, y):
+def update_enemy(x, y, i):
     """ Update position of enemy image on main screen """
-    MAIN_SCREEN.blit(ENEMY, (x, y))
+    MAIN_SCREEN.blit(ENEMY[i], (x, y))
 
 
 def fire_bullet(x, y):
@@ -132,11 +135,12 @@ BULLET_POSITION_X_CHANGE = 0
 BULLET_POSITION_Y_CHANGE = 7
 
 # Enemy
-ENEMY = None
-ENEMY_POSITION_X = None
-ENEMY_POSITION_Y = None
-ENEMY_POSITION_X_PACE = 1
-ENEMY_POSITION_Y_PACE = 40
+ENEMY_NUMBER = 10
+ENEMY = []
+ENEMY_POSITION_X = []
+ENEMY_POSITION_Y = []
+ENEMY_POSITION_X_PACE = []
+ENEMY_POSITION_Y_PACE = []
 generate_enemy()
 
 run = True
@@ -167,15 +171,29 @@ while run:
     fix_player_bounds()
 
     # Move enemy
-    ENEMY_POSITION_X += ENEMY_POSITION_X_PACE
-    if ENEMY_POSITION_X > SCREEN_RIGHT_BOUNDARY:
-        ENEMY_POSITION_X_PACE = -ENEMY_POSITION_X_PACE
-        ENEMY_POSITION_X = SCREEN_RIGHT_BOUNDARY
-        ENEMY_POSITION_Y += ENEMY_POSITION_Y_PACE
-    if ENEMY_POSITION_X < SCREEN_LEFT_BOUNDARY:
-        ENEMY_POSITION_X_PACE = -ENEMY_POSITION_X_PACE
-        ENEMY_POSITION_X = SCREEN_LEFT_BOUNDARY
-        ENEMY_POSITION_Y += ENEMY_POSITION_Y_PACE
+    for i in range(ENEMY_NUMBER):
+        ENEMY_POSITION_X[i] += ENEMY_POSITION_X_PACE[i]
+        if ENEMY_POSITION_X[i] > SCREEN_RIGHT_BOUNDARY:
+            ENEMY_POSITION_X_PACE[i] = -ENEMY_POSITION_X_PACE[i]
+            ENEMY_POSITION_X[i] = SCREEN_RIGHT_BOUNDARY
+            ENEMY_POSITION_Y[i] += ENEMY_POSITION_Y_PACE[i]
+        if ENEMY_POSITION_X[i] < SCREEN_LEFT_BOUNDARY:
+            ENEMY_POSITION_X_PACE[i] = -ENEMY_POSITION_X_PACE[i]
+            ENEMY_POSITION_X[i] = SCREEN_LEFT_BOUNDARY
+            ENEMY_POSITION_Y[i] += ENEMY_POSITION_Y_PACE[i]
+
+        # Collision check
+        collision = objects_collide(
+            ENEMY_POSITION_X[i], ENEMY_POSITION_Y[i], BULLET_POSITION_X, BULLET_POSITION_Y
+        )
+        if collision:
+            reload_bullet()
+            PLAYER_SCORE += 1
+            ENEMY_POSITION_X[i] = random.randint(SCREEN_LEFT_BOUNDARY, SCREEN_RIGHT_BOUNDARY)
+            ENEMY_POSITION_Y[i] = random.randint(SCREEN_TOP_BOUNDARY, SCREEN_ENEMY_BOTTOM_BOUNDARY)
+            print(f"=> Hit! Your score is {PLAYER_SCORE}")
+
+        update_enemy(ENEMY_POSITION_X[i], ENEMY_POSITION_Y[i], i)
 
     # Crab movement
     if BULLET_STATE is BULLET_STATE_RELOADING:
@@ -184,17 +202,6 @@ while run:
         if BULLET_POSITION_Y < SCREEN_TOP_BOUNDARY:
             reload_bullet()
 
-    # Collision check
-    collision = objects_collide(
-        ENEMY_POSITION_X, ENEMY_POSITION_Y, BULLET_POSITION_X, BULLET_POSITION_Y
-    )
-    if collision:
-        reload_bullet()
-        PLAYER_SCORE += 1
-        print(f"=> Hit! Your score is {PLAYER_SCORE}")
-        generate_enemy()
-
 
     update_player(PLAYER_POSITION_X, PLAYER_POSITION_Y)
-    update_enemy(ENEMY_POSITION_X, ENEMY_POSITION_Y)
     pygame.display.update()
