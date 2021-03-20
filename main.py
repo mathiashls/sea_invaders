@@ -3,6 +3,7 @@ import random
 
 # Main screen constants
 SCREEN_ICON = "images/tortoise.png"
+SCREEN_BACKGROUND = "images/ocean.png"
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_LEFT_BOUNDARY = 5
@@ -94,6 +95,7 @@ ENEMY_POSITION_Y_CHANGE = 40
 run = True
 while run:
     MAIN_SCREEN.fill((0,105,148))
+    MAIN_SCREEN.blit(MAIN_BACKGROUND, (0,0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
