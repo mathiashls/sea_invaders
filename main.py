@@ -122,6 +122,10 @@ MAIN_BACKGROUND = pygame.image.load(SCREEN_BACKGROUND)
 MAIN_BACKGROUND = pygame.transform.scale(MAIN_BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
 MAIN_SCREEN = setup_screen()
 
+# Music
+# pygame.mixer.music.load('background.wav')
+# pygame.mixer.music.play(-1)
+
 # Score
 SCORE_FONT = pygame.font.Font('freesansbold.ttf', 32)
 SCORE_X = 10
@@ -169,6 +173,8 @@ while run:
             if event.key == pygame.K_RIGHT:
                 PLAYER_POSITION_X_CHANGE = PLAYER_POSITION_X_PACE
             if event.key == pygame.K_SPACE and BULLET_STATE is BULLET_STATE_READY:
+                # bullet_sound = pygame.mixer.Sound('bullet.wav')
+                # bullet_sound.play()
                 BULLET_POSITION_X = PLAYER_POSITION_X
                 fire_bullet(PLAYER_POSITION_X, BULLET_POSITION_Y)
         if event.type == pygame.KEYUP:
@@ -197,6 +203,8 @@ while run:
             ENEMY_POSITION_X[i], ENEMY_POSITION_Y[i], BULLET_POSITION_X, BULLET_POSITION_Y
         )
         if collision:
+            # bullet_sound = pygame.mixer.Sound('collision.wav')
+            # bullet_sound.play()
             reload_bullet()
             PLAYER_SCORE += 1
             ENEMY_POSITION_X[i] = random.randint(SCREEN_LEFT_BOUNDARY, SCREEN_RIGHT_BOUNDARY)
