@@ -17,6 +17,11 @@ PLAYER_IMAGE = "images/tortoise.png"
 PLAYER_DEFAULT_POSITION_X = 370
 PLAYER_DEFAULT_POSITION_Y = 450
 
+# Bullet constants
+BULLET_IMAGE = "images/crab.png"
+BULLET_STATE_READY = "bullet_ready"
+BULLET_STATE_RELOADING = "bullet_reloading"
+
 # Enemy constants
 ENEMY_01_IMAGE = "images/plastic_bag.png"
 ENEMY_02_IMAGE = "images/plastic_bottle.png"
@@ -33,26 +38,56 @@ def setup_screen():
 
 
 def update_player(x, y):
-    MAIN_SCREEN.blit(PLAYER, (x, y)) 
+    """ Update position of player image on main screen """
+    MAIN_SCREEN.blit(PLAYER, (x, y))
 
 
 def update_enemy(x, y):
+    """ Update position of enemy image on main screen """
     MAIN_SCREEN.blit(ENEMY, (x, y))
 
 
+def fire_bullet(x, y):
+    """ Fire a crab at those damn invaders """
+    global BULLET_STATE
+    BULLET_STATE = BULLET_STATE_RELOADING
+    # TODO fix offset of crab leaving turtle
+    MAIN_SCREEN.blit(BULLET, (x, y))
+
+
+def reload_bullet():
+    """ Reset bullet position and state so player can shoot it again """
+    global BULLET_STATE
+    global BULLET_POSITION_Y
+    BULLET_STATE = BULLET_STATE_READY
+    BULLET_POSITION_Y = PLAYER_DEFAULT_POSITION_Y
+
+
 pygame.init()
+
+# Main screen
+MAIN_BACKGROUND = pygame.image.load(SCREEN_BACKGROUND)
+MAIN_BACKGROUND = pygame.transform.scale(MAIN_BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
 MAIN_SCREEN = setup_screen()
 
 # Main character (player)
+PLAYER = pygame.image.load(PLAYER_IMAGE)
 PLAYER_POSITION_X = PLAYER_DEFAULT_POSITION_X
 PLAYER_POSITION_Y = PLAYER_DEFAULT_POSITION_Y
-PLAYER = pygame.image.load(PLAYER_IMAGE)
 PLAYER_POSITION_X_CHANGE = 0
 
+# Bullet (crab lol)
+BULLET = pygame.image.load(BULLET_IMAGE)
+BULLET_STATE = BULLET_STATE_READY
+BULLET_POSITION_X = 0
+BULLET_POSITION_Y = PLAYER_DEFAULT_POSITION_Y
+BULLET_POSITION_X_CHANGE = 0
+BULLET_POSITION_Y_CHANGE = 0.4
+
 # Enemy
+ENEMY = pygame.image.load(ENEMY_04_IMAGE)
 ENEMY_POSITION_X = random.randint(SCREEN_LEFT_BOUNDARY, SCREEN_RIGHT_BOUNDARY)
 ENEMY_POSITION_Y = random.randint(SCREEN_TOP_BOUNDARY, SCREEN_ENEMY_BOTTOM_BOUNDARY)
-ENEMY = pygame.image.load(ENEMY_04_IMAGE)
 ENEMY_POSITION_X_CHANGE = 0.1
 ENEMY_POSITION_Y_CHANGE = 40
 
@@ -69,6 +104,9 @@ while run:
                 PLAYER_POSITION_X_CHANGE = -0.2
             if event.key == pygame.K_RIGHT:
                 PLAYER_POSITION_X_CHANGE = 0.2
+            if event.key == pygame.K_SPACE and BULLET_STATE is BULLET_STATE_READY:
+                BULLET_POSITION_X = PLAYER_POSITION_X
+                fire_bullet(PLAYER_POSITION_X, BULLET_POSITION_Y)
         if event.type == pygame.KEYUP:
             if event.key in [pygame.K_LEFT, pygame.K_RIGHT]:
                 PLAYER_POSITION_X_CHANGE = 0
@@ -95,6 +133,14 @@ while run:
         ENEMY_POSITION_X_CHANGE = -ENEMY_POSITION_X_CHANGE
         ENEMY_POSITION_X = SCREEN_LEFT_BOUNDARY
         ENEMY_POSITION_Y += ENEMY_POSITION_Y_CHANGE
+
+    # Crab movement
+    if BULLET_STATE is BULLET_STATE_RELOADING:
+        fire_bullet(BULLET_POSITION_X, BULLET_POSITION_Y)
+        BULLET_POSITION_Y -= BULLET_POSITION_Y_CHANGE
+        if BULLET_POSITION_Y < SCREEN_TOP_BOUNDARY:
+            reload_bullet()
+
 
 
     update_player(PLAYER_POSITION_X, PLAYER_POSITION_Y)
