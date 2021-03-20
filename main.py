@@ -78,6 +78,11 @@ def fix_player_bounds():
         PLAYER_POSITION_Y = SCREEN_BOTTOM_BOUNDARY
 
 
+def update_score(x, y):
+    score = SCORE_FONT.render(f"Score: {str(PLAYER_SCORE)}", True, (255, 255, 255))
+    MAIN_SCREEN.blit(score, (x, y))
+
+
 def update_enemy(x, y, i):
     """ Update position of enemy image on main screen """
     MAIN_SCREEN.blit(ENEMY[i], (x, y))
@@ -116,6 +121,11 @@ print("=> Welcome to SEA INVADERS! You better hit these bastards with that crab!
 MAIN_BACKGROUND = pygame.image.load(SCREEN_BACKGROUND)
 MAIN_BACKGROUND = pygame.transform.scale(MAIN_BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
 MAIN_SCREEN = setup_screen()
+
+# Score
+SCORE_FONT = pygame.font.Font('freesansbold.ttf', 32)
+SCORE_X = 10
+SCORE_Y = 10
 
 # Main character (player)
 PLAYER = pygame.image.load(PLAYER_IMAGE)
@@ -204,4 +214,5 @@ while run:
 
 
     update_player(PLAYER_POSITION_X, PLAYER_POSITION_Y)
+    update_score(SCORE_X, SCORE_Y)
     pygame.display.update()
