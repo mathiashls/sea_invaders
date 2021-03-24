@@ -105,14 +105,52 @@ def main_menu():
 
 
 def stage_one():
-    run = True
-    while run:
-        MAIN_SCREEN.fill((0,105,148))
+    def generate_enemy():
+        enemy_pace_x = ENEMIES_PACE_X  + (2 * (player.score + 100)/100)
+        position_x = random.choice(
+            range(ENEMY_BOUNDARY["left"], ENEMY_BOUNDARY["right"])
+        )
+        position_y = random.choice(
+            range(ENEMY_BOUNDARY["top"], ENEMY_BOUNDARY["bottom"])
+        )
+        enemy = characters.Enemy(MAIN_SCREEN, ENEMY_BOUNDARY, position_x, position_y, enemy_pace_x, ENEMIES_PACE_Y)
+        return enemy
+
+    player = characters.Player(
+        MAIN_SCREEN, PLAYER_BOUNDARY, PLAYER_SPAWN_X, PLAYER_SPAWN_Y, PLAYER_PACE_X, PLAYER_PACE_Y
+    )
+    player_change_x = 0
+
+    enemies = []
+    for i in range(ENEMIES_NUMBER):
+        new_enemy = generate_enemy()
+        enemies.append(new_enemy)
+
+    while stage_loop:
         MAIN_SCREEN.blit(MAIN_BACKGROUND, (0,0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit_game()
+            # Capture player movement controls
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    player_change_x = -player.pace_x
+                if event.key == pygame.K_RIGHT:
+                    player_change_x = player.pace_x
+                # if event.key == pygame.K_SPACE and BULLET_STATE is BULLET_STATE_READY:
+                    # bullet_sound = pygame.mixer.Sound('bullet.wav')
+                    # bullet_sound.play()
+                    # BULLET_POSITION_X = PLAYER_POSITION_X
+                    # fire_bullet(PLAYER_POSITION_X, BULLET_POSITION_Y)
+            if event.type == pygame.KEYUP:
+                if event.key in [pygame.K_LEFT, pygame.K_RIGHT]:
+                    player_change_x = 0
 
+        player.move(player_change_x, 0)
+        player.render()
+        for enemy in enemies:
+            enemy.move()
+            enemy.render()
         pygame.display.update()
 
 
