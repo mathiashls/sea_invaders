@@ -41,14 +41,31 @@ class Player(ScreenItem):
 
 class Enemy(ScreenItem):
 
-    def __init__(self, position_x, position_y, pace_x, pace_y):
-        self.SKIN = random.choice(
-            "images/plastic_bag.png"
-            "images/plastic_bottle.png"
-            "images/straw_01.png"
-            "images/straw_02.png"
+    def __init__(self, screen, screen_bounds, position_x, position_y, pace_x, pace_y):
+        self.SKIN = random.choice([
+            "images/plastic_bag.png",
+            "images/plastic_bottle.png",
+            "images/straw_01.png",
+            "images/straw_02.png",
+        ])
+        super().__init__(
+            screen, screen_bounds, position_x, position_y, pace_x, pace_y
         )
-        super().__init__(position_x, position_y, pace_x, pace_y)
+
+    def move(self):
+        change_y = 0
+        if self.position_x > self.screen_bounds["right"]:
+            self.pace_x = -self.pace_x
+            self.position_x = self.screen_bounds["right"]
+            change_y = self.pace_y
+        if self.position_x < self.screen_bounds["left"]:
+            self.pace_x = -self.pace_x
+            self.position_x = self.screen_bounds["left"]
+            change_y = self.pace_y
+        change_x = self.pace_x
+
+        self.position_x += change_x
+        self.position_y += change_y
 
 
 class Bullet(ScreenItem):
