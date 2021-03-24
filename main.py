@@ -47,7 +47,9 @@ def setup_screen():
 
 
 pygame.init()
-game_alive = True
+main_loop = True
+stage_loop = True
+game_over_loop = True
 print("=> Welcome to SEA INVADERS! You better hit these bastards with that crab!")
 
 # Main screen
@@ -65,14 +67,18 @@ SCORE_X = SCREEN_WIDTH * (5/100)
 SCORE_Y = SCREEN_HEIGHT * (5/100)
 
 def exit_game():
-    print(f"=> Hope I can see you soon. Your score was {PLAYER_SCORE}!")
-    global game_alive
-    game_alive = False
+    # print(f"=> Hope I can see you soon. Your score was {PLAYER_SCORE}!")
+    global main_loop
+    global stage_loop
+    global game_over_loop
+    main_loop = False
+    stage_loop = False
+    game_over_loop = False
 
 def main_menu():
     title_font = pygame.font.Font('fonts/beach_type.ttf', 128)
     press_space_font = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 24)
-    while game_alive:
+    while main_loop:
         MAIN_SCREEN.fill((0,105,148))
         MAIN_SCREEN.blit(MAIN_BACKGROUND, (0,0))
 
@@ -111,8 +117,7 @@ def stage_one():
 
 
 def game_over():
-    run = True
-    while run:
+    while game_over_loop:
         MAIN_SCREEN.fill((0,105,148))
         MAIN_SCREEN.blit(MAIN_BACKGROUND, (0,0))
         for event in pygame.event.get():
